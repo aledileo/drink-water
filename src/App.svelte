@@ -8,6 +8,24 @@
 	let db;
 	let allEntries = [];
 	let request = indexedDB.open('water');
+	let totalWaterInMl = 0;
+	$: totalWaterInMl = allEntries.reduce((acc, val) => acc + val.quantity, 0)
+	
+	function queryAllEntries() {
+		let transaction = db.transaction(['entries'], 'readonly');
+		let objectStore = transaction.objectStore('entries');
+		console.log({objectStore})
+		const request = objectStore.getAll();
+
+		request.onsuccess = function(event) {
+			console.log(event.target.result)
+			let res = event.target.result;
+
+			if(res) {
+				allEntries = res;
+			}
+		}
+	}
 
 	request.onerror = function(event) {
 		console.error('Database error: ' + event.target.errorCode);
@@ -15,17 +33,7 @@
 
 	request.onsuccess = function(event) {
 		db = event.target.result;
-		let transaction = db.transaction(['entries'], 'readonly');
-		let objectStore = transaction.objectStore('entries');
-		let cursor = objectStore.openCursor();
-
-		cursor.onsuccess = function(event) {
-			let res = event.target.result;
-			if (res) {
-				allEntries.push(res.value);
-				res.continue();
-			}
-		}
+		queryAllEntries()
 	}
 
 	request.onupgradeneeded = function(event) {
@@ -40,13 +48,13 @@
 		objectStore.createIndex("quantity", "quantity", { unique: false });
 	}
 
-	function addEntry(selectedQty) {
+	function addEntry() {
 		const transaction = db.transaction(['entries'], 'readwrite');
 		const store = transaction.objectStore('entries');
 
 		const entry = {
 			timestamp: Date.now(),
-			quantity: selectedQty
+			quantity: qty
 		}
 
 		const request = store.add(entry);
@@ -57,12 +65,15 @@
 
 		request.onsuccess = function(event) {
 			console.log('Success! Saved entry: ', JSON.stringify(entry, null, 2))
+			queryAllEntries()
 		}
+
 	}
+
+	$: waterGlassesCount && addEntry()
 
 	function handleClick() {
 		waterGlassesCount += 1
-		addEntry(qty)
 	}
 
 	function handleQty(event) {
@@ -73,7 +84,8 @@
 
 <main>
 	<h1>Hello {name}!</h1>
-	<p>You've drinked {waterGlassesCount} glasses of water so far!</p>
+	<p>You've drinked {waterGlassesCount} glasses of water today!</p>
+	<p style={ totalWaterInMl <= 0 ? 'visibility: hidden' : '' }>You've drinked {totalWaterInMl}ml in total</p>
 	<button on:click={handleClick}>Add glass of water</button>
 	<!-- <input type="number" on:change={handleQty}> -->
 
