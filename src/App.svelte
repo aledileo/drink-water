@@ -1,6 +1,5 @@
 <script>
 
-	let name = 'Ale'
 	let waterGlassesCount = 0;
 	let qty = 345;
 
@@ -91,33 +90,12 @@
 
 </script>
 
-<main>
-	<h1>Hello {name}!</h1>
-	<p>You've drinked {totalWaterToday}ml of water today!</p>
-	<p style={ totalWaterInMl <= 0 ? 'visibility: hidden' : '' }>You've drinked {totalWaterInMl}ml in total</p>
-	<button on:click={handleClick}>Add glass of water</button>
-	<!-- <input type="number" on:change={handleQty}> -->
+<main class="container mx-auto text-center min-h-full flex flex-col justify-center">
+	<h2 class="text-6xl my-2">{totalWaterToday}ml</h2>
+	<p class="my-6" style={ totalWaterInMl <= 0 ? 'visibility: hidden' : '' }>You've drinked {totalWaterInMl}ml in total</p>
+	<button class="self-center text-center w-3/5 bg-purple-400 py-2 px-4 my-8 rounded-full" on:click={handleClick}>Add water entry ({ qty }ml)</button>
 
 </main>
 
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
 </style>
