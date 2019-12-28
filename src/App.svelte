@@ -9,21 +9,30 @@
 	let allEntries = [];
 	let request = indexedDB.open('water');
 	let totalWaterInMl = 0;
-	$: totalWaterInMl = allEntries.reduce((acc, val) => acc + val.quantity, 0)
-	
+	let totalWaterToday;
+
+	const getQty = (acc, val) => acc + val.quantity;
+	$: totalWaterInMl = allEntries.reduce(getQty, 0)
+	$: totalWaterToday = allEntries.filter(isToday).reduce(getQty, 0);
+
+	const isToday = function(entry) {
+		const givenDate = new Date(entry.timestamp);
+		const today = new Date();
+		const isSameDay = givenDate.getDate() === today.getDate();
+		const isSameMonth = givenDate.getMonth() === today.getMonth();
+		const isSameYear = givenDate.getFullYear() === today.getFullYear();
+		
+		return isSameDay && isSameMonth && isSameYear 
+	}
+
 	function queryAllEntries() {
 		let transaction = db.transaction(['entries'], 'readonly');
 		let objectStore = transaction.objectStore('entries');
-		console.log({objectStore})
 		const request = objectStore.getAll();
 
 		request.onsuccess = function(event) {
-			console.log(event.target.result)
 			let res = event.target.result;
-
-			if(res) {
-				allEntries = res;
-			}
+			if(res) allEntries = res;
 		}
 	}
 
@@ -84,7 +93,7 @@
 
 <main>
 	<h1>Hello {name}!</h1>
-	<p>You've drinked {waterGlassesCount} glasses of water today!</p>
+	<p>You've drinked {totalWaterToday}ml of water today!</p>
 	<p style={ totalWaterInMl <= 0 ? 'visibility: hidden' : '' }>You've drinked {totalWaterInMl}ml in total</p>
 	<button on:click={handleClick}>Add glass of water</button>
 	<!-- <input type="number" on:change={handleQty}> -->
