@@ -1,4 +1,5 @@
 <script>
+	import { fade, fly } from 'svelte/transition';
 
 	let waterGlassesCount = 0;
 	let qty = 345;
@@ -90,11 +91,10 @@
 
 </script>
 
-<main class="container mx-auto text-center min-h-full flex flex-col justify-center">
+<main transition:fly="{{ y: 200, duration: 750 }}" class="container mx-auto text-center min-h-full flex flex-col justify-center">
 	<h2 class="text-6xl my-2">{totalWaterToday}ml</h2>
 	<p class="my-6" style={ totalWaterInMl <= 0 ? 'visibility: hidden' : '' }>You've drinked {totalWaterInMl}ml in total</p>
 	<button class="self-center text-center w-3/5 bg-purple-400 py-2 px-4 my-8 rounded-full" on:click={handleClick}>Add water entry ({ qty }ml)</button>
-
 </main>
 
 <style>
